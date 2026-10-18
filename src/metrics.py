@@ -89,6 +89,18 @@ def channel_share(df: pd.DataFrame, channel: str, start_month: str, end_month: s
     return float(d.loc[d["channel"] == channel, "net"].sum() / total * 100)
 
 
+def top_products(df: pd.DataFrame, n: int = 5) -> pd.DataFrame:
+    """n สินค้าที่ยอดขายสุทธิสูงสุด คืน DataFrame คอลัมน์ product_id, product_name, qty, net"""
+    return (
+        _delivered(df)
+        .groupby(["product_id", "product_name"], as_index=False)[["qty", "net"]]
+        .sum()
+        .sort_values("net", ascending=False)
+        .head(n)
+        .reset_index(drop=True)
+    )
+
+
 def rating_by_ship_bucket(df: pd.DataFrame) -> dict[str, float]:
     """คะแนนรีวิวเฉลี่ยตามระยะส่ง คืน dict คีย์ '1-2', '3-4', '5-6', '7+'"""
     d = df.dropna(subset=["rating", "ship_days"])
